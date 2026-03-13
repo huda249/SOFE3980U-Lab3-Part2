@@ -10,32 +10,41 @@ public class Binary
 	/**
 	* A constructor that generates a binary object.
 	*
-	* @param number a String of the binary values. It should conatins only zeros or ones with any length and order. otherwise, the value of "0" will be stored.   Trailing zeros will be excluded and empty string will be considered as zero.
+	* @param number a String of the binary values. It should contain only zeros or ones with any length and order. otherwise, the value of "0" will be stored.   Trailing zeros will be excluded and empty string will be considered as zero.
 	*/
-    public Binary(String number) {
+	public Binary(String number) {
+		if (number == null || number.isEmpty()) {
+			this.number = "0"; // Default to "0" for null or empty input
+			return;
+		}
+	
+		// Validate the binary string (only '0' or '1' allowed)
 		for (int i = 0; i < number.length(); i++) {
-			// check each character if it's not 0 or 1
-			char ch=number.charAt(i);
-			if(ch!='0' && ch!='1') {
-				number="0"; // if not store "0" and end the function
+			char ch = number.charAt(i);
+			if (ch != '0' && ch != '1') {
+				this.number = "0"; // Default to "0" for invalid input
 				return;
 			}
 		}
-		// remove any trailing zeros
+	
+		// Remove leading zeros
 		int beg;
 		for (beg = 0; beg < number.length(); beg++) {
-			if (number.charAt(beg)!='0')
+			if (number.charAt(beg) != '0') {
 				break;
+			}
 		}
-		//beg has the index of the first non zero digit in the number
-		this.number=number.substring(beg); // exclude the trailing zeros if any
+	
+		// If all digits are '0', ensure number is "0"
+		this.number = (beg == number.length()) ? "0" : number.substring(beg);
+	
 		// uncomment the following code
 		
-		if(this.number=="") { // replace empty strings with a single zero
-			this.number="0";
+		if (this.number.isEmpty()) { // replace empty strings with a single zero
+			this.number = "0";
 		}
-		
-    }
+  		
+	}
 	/**
 	* Return the binary value of the variable
 	*
@@ -79,4 +88,67 @@ public class Binary
 		return result;
 		
 	}
+    //new functions
+    //OR bitwise logical or
+    public static Binary or(Binary num1, Binary num2) {
+        int len1 = num1.number.length();
+        int len2 = num2.number.length();
+        int maxLen = Math.max(len1, len2);
+        
+        StringBuilder result = new StringBuilder();
+        
+        for (int i = 0; i < maxLen; i++) {
+            char bit1 = (i < len1) ? num1.number.charAt(len1 - 1 - i) : '0';
+            char bit2 = (i < len2) ? num2.number.charAt(len2 - 1 - i) : '0';
+            
+            if (bit1 == '1' || bit2 == '1') {
+                result.insert(0, '1');
+            } else {
+                result.insert(0, '0');
+            }
+        }
+        
+        return new Binary(result.toString());
+    }
+
+    //AND bitwise logical and
+    public static Binary and(Binary num1, Binary num2) {
+        int len1 = num1.number.length();
+        int len2 = num2.number.length();
+        int maxLen = Math.max(len1, len2);
+        
+        StringBuilder result = new StringBuilder();
+        
+        for (int i = 0; i < maxLen; i++) {
+            char bit1 = (i < len1) ? num1.number.charAt(len1 - 1 - i) : '0';
+            char bit2 = (i < len2) ? num2.number.charAt(len2 - 1 - i) : '0';
+            
+            if (bit1 == '1' && bit2 == '1') {
+                result.insert(0, '1');
+            } else {
+                result.insert(0, '0');
+            }
+        }
+        
+        return new Binary(result.toString());
+    }
+    //multiply two binary numbers
+    public static Binary multiply(Binary num1, Binary num2) {
+        Binary result = new Binary("0");
+        Binary multiplicand = new Binary(num1.number);
+        
+        for (int i = num2.number.length() - 1; i >= 0; i--) {
+            if (num2.number.charAt(i) == '1') {
+                // Shift and add method: for each '1' bit, add shifted multiplicand
+                String shifted = multiplicand.number;
+                for (int j = 0; j < (num2.number.length() - 1 - i); j++) {
+                    shifted += "0"; // Shift left (add trailing zeros)
+                }
+                result = add(result, new Binary(shifted));
+            }
+        }
+        
+        return result;
+    }
+
 }	
